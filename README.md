@@ -58,7 +58,7 @@ require('/path/to/cloned/directory/src/MySQL.php');
 
 This class does not require instantiation since it uses the singleton design pattern for connections.  You may simply begin using the available public methods.  If none of the methods are called, a database connection is never created.  You may alias the class as another name using `use/as`: 
 
-```
+```php
 use jabarihunt/MySQL as DB;
 
 /*
