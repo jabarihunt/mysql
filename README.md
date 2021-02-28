@@ -9,27 +9,27 @@ A simple class that handles MySQL database instances with support for both TCP a
 You will need to have the following environment variables present (usually done with a .env file):
 
 ```dotenv
-MYSQL_HOST='localhost'
-MYSQL_NAME='manevia_db'
-MYSQL_USER='root'
-MYSQL_PASSWORD='secretPassword'
-MYSQL_SOCKET=NULL
+MYSQL_HOST="localhost"
+MYSQL_NAME="manevia_db"
+MYSQL_USER="root"
+MYSQL_PASSWORD="secretPassword"
+MYSQL_SOCKET="NULL"
 ```
 
 Depending on how you load environment variables, you may be able to reference already defined variables when setting the required environment variables above.  This helps prevent having to maintain values in multiple locations.  For example:
 
 ```dotenv
-DATABASE_HOST='localhost'
-DATABASE_NAME='manevia_db'
-DATABASE_USER='root'
-DATABASE_PASSWORD='secretPassword'
-DATABASE_SOCKET=NULL
+DATABASE_HOST="localhost"
+DATABASE_NAME="manevia_db"
+DATABASE_USER="roo"
+DATABASE_PASSWORD="secretPassword"
+DATABASE_SOCKET="NULL"
 
-MYSQL_HOST='${DATABASE_HOST}'
-MYSQL_NAME='${DATABASE_NAME}'
-MYSQL_USER='${DATABASE_USER}'
-MYSQL_PASSWORD='${DATABASE_PASSWORD}'
-MYSQL_SOCKET='${DATABASE_SOCKET}'
+MYSQL_HOST="${DATABASE_HOST}"
+MYSQL_NAME="${DATABASE_NAME}"
+MYSQL_USER="${DATABASE_USER}"
+MYSQL_PASSWORD="${DATABASE_PASSWORD}"
+MYSQL_SOCKET="${DATABASE_SOCKET}"
 ```
 ### Installing
 
@@ -76,10 +76,10 @@ use jabarihunt/MySQL as DB;
     $string = 'Am I a good string or a naughty string?';
     
     $string = DB::sanitize($string, DB::DATA_TYPE_INTEGER);    // All characters removed since sanitizing as an int data type!
-    $string = DB::sanitize($string);                           // String remains since method defaults to DB::DATA_TYPE_INTEGER
+    $string = DB::sanitize($string);                           // String remains since method defaults to DB::DATA_TYPE_TEXT
     $string = DB::sanitize(NULL);                              // Null values are converted to an empty string before sanitizing
     
-    // CLASS DATA TYPES ARE BASED ON MYSQL DATA TYPES -> AVAILABLE DATA TYPES BELOW
+    // CLASS DATA TYPES ARE BASED ON MYSQL DATA TYPES.  DATA TYPES ARE DECLARED IN THE CLASS AS SHOWN BELOW:
     
         const DATA_TYPE_INTEGER  = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'bit'];
         const DATA_TYPE_REAL     = ['float', 'double', 'decimal'];
@@ -100,7 +100,7 @@ use jabarihunt/MySQL as DB;
  * CREATES MYSQL DUMP FILE AT GIVEN PATH WITH FORMAT: <database>_<year>-<month>-<day>_<unix timestamp>.sql
  */
  
-    DB::backup('path/to/my/backup/folder');   // 
+    DB::backup('path/to/my/backup/folder');
 ```
 
 ## Contributing
