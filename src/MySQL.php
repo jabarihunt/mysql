@@ -80,10 +80,10 @@
 
                     // SET DATABASE AND SESSION CLASS VARIABLES
 
-                        self::$host           = getenv('MYSQL_HOST');
-                        self::$database       = getenv('MYSQL_NAME');
-                        self::$user           = getenv('MYSQL_USER');
-                        self::$password       = getenv('MYSQL_PASSWORD');
+                        self::$host     = $_ENV['MYSQL_HOST'];
+                        self::$database = $_ENV['MYSQL_NAME'];
+                        self::$user     = $_ENV['MYSQL_USER'];
+                        self::$password = $_ENV['MYSQL_PASSWORD'];
 
                         if (
                             !empty(getenv('DATABASE_SOCKET')) &&
@@ -138,11 +138,33 @@
                 /********************************************************************************
                  * PREPARE METHOD
                  * @param string $query
-                 * @return mysqli_stmt|false
+                 * @param array $params
+                 * @param string $paramTypes
+                 * @return array
                  ********************************************************************************/
 
-                    public static function prepare(string $query): mysqli_stmt|false {
-                        return self::get()->prepare($query);
+                    public static function prepare(string $query, array $params, string $paramTypes = NULL): array {
+
+                        // CREATE PARAM TYPES STRINGS IF NOT PASSED
+
+                            if (empty($paramTypes)) {
+
+                                for ($i = 0; $i < count($params); $i++) {
+                                    $paramTypes .= 's';
+                                }
+
+                            }
+
+                        // CREATE AND EXECUTE PREPARED STATEMENT
+
+                            $statement = self::get()->prepare($query);
+                            $statement->bind_param($paramTypes, ...$params);
+                            $statement->execute();
+
+                        // EXTRACT AND RETURN RESULTS
+
+                            return $statement->num_rows > 0 ? $statement->get_result()->fetch_all(MYSQLI_ASSOC) : [];
+
                     }
 
                 /********************************************************************************
@@ -195,10 +217,10 @@
 
                     public static function backup(string $directory): void {
 
-                $user     = self::$user;
-                $password = self::$password;
-                $database = self::$database;
-                $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
+                    $user     = self::$user;
+                    $password = self::$password;
+                    $database = self::$database;
+                    $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
 
                 exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
 
