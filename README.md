@@ -10,7 +10,7 @@ You will need to have the following environment variables present (usually done 
 
 ```dotenv
 MYSQL_HOST="localhost"
-MYSQL_NAME="manevia_db"
+MYSQL_DATABASE="manevia_db"
 MYSQL_USER="root"
 MYSQL_PASSWORD="secretPassword"
 MYSQL_SOCKET="NULL"
@@ -26,7 +26,7 @@ DATABASE_PASSWORD="secretPassword"
 DATABASE_SOCKET="NULL"
 
 MYSQL_HOST="${DATABASE_HOST}"
-MYSQL_NAME="${DATABASE_NAME}"
+MYSQL_DATABASE="${DATABASE_NAME}"
 MYSQL_USER="${DATABASE_USER}"
 MYSQL_PASSWORD="${DATABASE_PASSWORD}"
 MYSQL_SOCKET="${DATABASE_SOCKET}"

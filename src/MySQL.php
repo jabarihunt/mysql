@@ -80,10 +80,10 @@
 
                     // SET DATABASE AND SESSION CLASS VARIABLES
 
-                        self::$host     = $_ENV['MYSQL_HOST'];
-                        self::$database = $_ENV['MYSQL_NAME'];
-                        self::$user     = $_ENV['MYSQL_USER'];
-                        self::$password = $_ENV['MYSQL_PASSWORD'];
+                        self::$host     = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_');
+                        self::$database = $_ENV['MYSQL_DATABASE'] ?? getenv('MYSQL_DATABASE');
+                        self::$user     = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
+                        self::$password = $_ENV['MYSQL_PASSWORD'] ?? getenv('MYSQL_PASSWORD');
 
                         if (
                             !empty(getenv('DATABASE_SOCKET')) &&
@@ -163,7 +163,7 @@
 
                         // EXTRACT AND RETURN RESULTS
 
-                            return $statement->num_rows > 0 ? $statement->get_result()->fetch_all(MYSQLI_ASSOC) : [];
+                            return $statement->get_result()->fetch_all(MYSQLI_ASSOC);
 
                     }
 
