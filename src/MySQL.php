@@ -80,23 +80,22 @@
 
                     // SET DATABASE AND SESSION CLASS VARIABLES
 
-                        self::$host     = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_');
-                        self::$database = $_ENV['MYSQL_DATABASE'] ?? getenv('MYSQL_DATABASE');
-                        self::$user     = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
-                        self::$password = $_ENV['MYSQL_PASSWORD'] ?? getenv('MYSQL_PASSWORD');
+                        self::$host     = getenv('MYSQL_HOST');
+                        self::$database = getenv('MYSQL_DATABASE');
+                        self::$user     = getenv('MYSQL_USER');
+                        self::$password = getenv('MYSQL_PASSWORD');
+                        self::$socket   = getenv('MYSQL_SOCKET');
 
                         if (
-                            !empty(getenv('DATABASE_SOCKET')) &&
-                            getenv('DATABASE_SOCKET') !== 'NULL'
+                            empty(self::$socket) ||
+                            in_array(strtoupper(self::$socket), ['NULL', 'FALSE', '0'])
                         ) {
-                            self::$socket = getenv('DATABASE_SOCKET');
-                        } else {
                             self::$socket = NULL;
                         }
 
                     // CONNECT TO DATABASE | CHECK CONNECTION
 
-                        self::$db = (self::$socket === NULL) ? new mysqli(self::$host, self::$user, self::$password, self::$database) : new mysqli(NULL, self::$user, self::$password, self::$database, NULL, self::$socket);
+                        self::$db = (self::$socket === NULL) ? @new mysqli(self::$host, self::$user, self::$password, self::$database) : @new mysqli(NULL, self::$user, self::$password, self::$database, NULL, self::$socket);
 
                         if (self::$db->connect_errno > 0) {
 
