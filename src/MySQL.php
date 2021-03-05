@@ -124,8 +124,29 @@
                  ********************************************************************************/
 
                     public static function query(string $query): mysqli_result|false {
-                        $result = self::get()->query($query);
-                        return (is_bool($result)) ? $result : $result->fetch_all(MYSQLI_ASSOC);
+
+                        // RETURN FALSE IF QUERY IS EMPTY OR NOT A STRING
+
+                            if (empty($query) || !is_string($query)) {
+                                return FALSE;
+                            }
+
+                        // TRIM QUERY & GET QUERY TYPE | RUN QUERY
+
+                            $query     = trim($query);
+                            $queryType = strtoupper(
+                                substr(
+                                    $query,
+                                    0,
+                                    (strpos($query, ' ') - 1)
+                                )
+                            );
+
+                            $result = self::get()->query($query);
+
+                        // RETURN RESULT BASED OF QUERY TYPE
+
+                            return in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN']) ? $result->fetch_all(MYSQLI_ASSOC) : $result;
                     }
 
                 /********************************************************************************
@@ -138,7 +159,22 @@
 
                     public static function prepare(string $query, array $paramValues, string $paramTypeString = NULL): array|int {
 
-                        // CREATE PARAM TYPES STRINGS IF NOT PASSED
+                        // RETURN FALSE IF QUERY IS EMPTY OR NOT A STRING
+
+                            if (empty($query) || !is_string($query)) {
+                                return FALSE;
+                            }
+
+                        // TRIM QUERY & GET QUERY TYPE | CREATE PARAM TYPES STRING IF NOT PASSED
+
+                            $query     = trim($query);
+                            $queryType = strtoupper(
+                                substr(
+                                    $query,
+                                    0,
+                                    (strpos($query, ' ') - 1)
+                                )
+                            );
 
                             if (empty($paramTypeString)) {
                                 for ($i = 0; $i < count($paramValues); $i++) {
@@ -162,9 +198,9 @@
                             $affectedRows = $statement->affected_rows;
                             $statement->close();
 
-                        // RETURN RESULT SET, OR # AFFECTED ROWS
+                        // RETURN RESULT BASED OF QUERY TYPE
 
-                            return ($result->num_rows > 0) ? $result->fetch_all(MYSQLI_ASSOC) : $affectedRows;
+                            return in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN']) ? $result->fetch_all(MYSQLI_ASSOC) : $affectedRows;
 
                     }
 
