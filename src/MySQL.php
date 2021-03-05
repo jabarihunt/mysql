@@ -114,7 +114,7 @@
                 }
 
             /********************************************************************************
-             * PUBLIC DB METHODS -> BACKUP | SET INSTANCE | PREPARE | QUERY
+             * PUBLIC DB METHODS
              ********************************************************************************/
 
                 /********************************************************************************
@@ -124,36 +124,47 @@
                  ********************************************************************************/
 
                     public static function query(string $query): mysqli_result|false {
-                        return self::get()->query($query);
+                        $result = self::get()->query($query);
+                        return (is_bool($result)) ? $result : $result->fetch_all(MYSQLI_ASSOC);
                     }
 
                 /********************************************************************************
                  * PREPARE METHOD
                  * @param string $query
-                 * @param array $params
-                 * @param string $paramTypes
-                 * @return array
-                 ********************************************************************************/
+                 * @param array $paramValues
+                 * @param string|null $paramTypeString
+                 * @return array|int
+                 *******************************************************************************/
 
-                    public static function prepare(string $query, array $params, string $paramTypes = NULL): array {
+                    public static function prepare(string $query, array $paramValues, string $paramTypeString = NULL): array|int {
 
                         // CREATE PARAM TYPES STRINGS IF NOT PASSED
 
-                            if (empty($paramTypes)) {
-                                for ($i = 0; $i < count($params); $i++) {
-                                    $paramTypes .= 's';
+                            if (empty($paramTypeString)) {
+                                for ($i = 0; $i < count($paramValues); $i++) {
+                                    $paramTypeString .= 's';
                                 }
                             }
 
-                        // CREATE AND EXECUTE PREPARED STATEMENT
+                        // CREATE AND EXECUTE PREPARED STATEMENT | RETURN FALSE ON ERROR
 
                             $statement = self::get()->prepare($query);
-                            $statement->bind_param($paramTypes, ...$params);
+                            $statement->bind_param($paramTypeString, ...$paramValues);
                             $statement->execute();
 
-                        // EXTRACT AND RETURN RESULTS
+                            if ($statement->errno > 0) {
+                                return FALSE;
+                            }
 
-                            return $statement->get_result()->fetch_all(MYSQLI_ASSOC);
+                        // EXTRACT RESULT & AFFECTED ROWS | CLOSE STATEMENT
+
+                            $result       = $statement->get_result();
+                            $affectedRows = $statement->affected_rows;
+                            $statement->close();
+
+                        // RETURN RESULT SET, OR # AFFECTED ROWS
+
+                            return ($result->num_rows > 0) ? $result->fetch_all(MYSQLI_ASSOC) : $affectedRows;
 
                     }
 
@@ -165,7 +176,6 @@
                  * @return mixed
                  *******************************************************************************/
 
-                    #[Pure]
                     public static function sanitize(mixed $value, array $dataType = self::DATA_TYPE_TEXT): mixed {
 
                         // MAKE SURE VALUE ISN'T NULL | SANITIZE BASED ON DATA TYPE | RETURN VALUE
