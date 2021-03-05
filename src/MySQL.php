@@ -1,10 +1,8 @@
 <?php namespace jabarihunt;
 
     use ErrorException;
-    use JetBrains\PhpStorm\Pure;
     use mysqli;
     use mysqli_result;
-    use mysqli_stmt;
 
     /********************************************************************************
      * MYSQL HANDLER
@@ -65,10 +63,8 @@
              ********************************************************************************/
 
                 private static function get(): mysqli|null {
-
                     if (self::$instance === NULL) {self::$instance = new MySQL();}
                     return self::$db;
-
                 }
 
             /********************************************************************************
@@ -98,10 +94,8 @@
                         self::$db = (self::$socket === NULL) ? @new mysqli(self::$host, self::$user, self::$password, self::$database) : @new mysqli(NULL, self::$user, self::$password, self::$database, NULL, self::$socket);
 
                         if (self::$db->connect_errno > 0) {
-
                             $connectionError = 'MySQL Connection Error #' . self::$db->connect_errno . ': ' . self::$db->connect_error;
                             throw new ErrorException($connectionError, 0, E_ERROR, __FILE__, __LINE__);
-
                         }
 
                 }
@@ -147,11 +141,9 @@
                         // CREATE PARAM TYPES STRINGS IF NOT PASSED
 
                             if (empty($paramTypes)) {
-
                                 for ($i = 0; $i < count($params); $i++) {
                                     $paramTypes .= 's';
                                 }
-
                             }
 
                         // CREATE AND EXECUTE PREPARED STATEMENT
@@ -170,29 +162,21 @@
                  * SANITIZE METHOD
                  * Used to sanitize individual field values for database insertion.
                  * @param mixed $value The value to be sanitized.
-                 * @param string|null $dataType The DB datatype of the passed value
-                 * @return string|int|float|null
+                 * @param array $dataType The DB datatype of the passed value
+                 * @return mixed
                  *******************************************************************************/
 
                     #[Pure]
-                    public static function sanitize(mixed $value, array $dataType = self::DATA_TYPE_TEXT): string|int|float {
+                    public static function sanitize(mixed $value, array $dataType = self::DATA_TYPE_TEXT): mixed {
 
                         // MAKE SURE VALUE ISN'T NULL | SANITIZE BASED ON DATA TYPE | RETURN VALUE
 
-                            $value = ($value === NULL) ? '' : $value;
-
-                            switch ($dataType) {
-                                case self::DATA_TYPE_TEXT:
-                                    $value = filter_var($value, FILTER_SANITIZE_STRING);
-                                    break;
-                                case self::DATA_TYPE_INTEGER:
-                                    $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-                                    break;
-                                case self::DATA_TYPE_REAL:
-                                    $value = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-                                    break;
-                                default:
-                                    $value = filter_var($value, FILTER_SANITIZE_STRING);
+                            if (!empty($value)) {
+                                $value = match ($dataType) {
+                                    self::DATA_TYPE_INTEGER => filter_var($value, FILTER_SANITIZE_NUMBER_INT),
+                                    self::DATA_TYPE_REAL    => filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
+                                    default                 => filter_var($value, FILTER_SANITIZE_STRING)
+                                };
                             }
 
                             return $value;
@@ -221,7 +205,7 @@
                     $database = self::$database;
                     $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
 
-                exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
+                    exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
 
             }
 
