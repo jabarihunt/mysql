@@ -105,13 +105,9 @@
              ********************************************************************************/
 
                 public function __destruct() {
-
-                    // CLOSE DATABASE
-
-                        if (self::$db instanceof mysqli) {
-                            self::$db->close();
-                        }
-
+                    if (self::$db instanceof mysqli) {
+                        self::$db->close();
+                    }
                 }
 
             /********************************************************************************
