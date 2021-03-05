@@ -8,8 +8,11 @@
      * MYSQL HANDLER
      * @author Jabari J. Hunt <jabari@jabari.net>
      *
-     * A simple class that handles MySQL database instances with support for both TCP and Socket connections.  I created this class as a standard way to interact with MySQL databases from within other projects with very low overhead.  I will personally use it as a dependency in those projects, but it's perfectly capable of being used as a standalone handler.
-     *
+     * A simple class that handles MySQL database instances with support for both TCP
+     * and Socket connections.  I created this class as a standard way to interact
+     * with MySQL databases from within other projects with very low overhead.  I
+     * personally use it as a dependency in those projects, but it's perfectly capable
+     * of being used as a standalone handler.
      ********************************************************************************/
 
         class MySQL {
