@@ -79,11 +79,11 @@
 
                     // SET DATABASE AND SESSION CLASS VARIABLES
 
-                        self::$host     = getenv('MYSQL_HOST');
-                        self::$database = getenv('MYSQL_DATABASE');
-                        self::$user     = getenv('MYSQL_USER');
-                        self::$password = getenv('MYSQL_PASSWORD');
-                        self::$socket   = getenv('MYSQL_SOCKET');
+                        self::$host     = !empty($_ENV['MYSQL_HOST']) ? $_ENV['MYSQL_HOST'] : getenv('MYSQL_HOST');
+                        self::$database = !empty($_ENV['MYSQL_DATABASE']) ? $_ENV['MYSQL_DATABASE'] : getenv('MYSQL_DATABASE');
+                        self::$user     = !empty($_ENV['MYSQL_USER']) ? $_ENV['MYSQL_USER'] : getenv('MYSQL_USER');
+                        self::$password = !empty($_ENV['MYSQL_PASSWORD']) ? $_ENV['MYSQL_PASSWORD'] : getenv('MYSQL_PASSWORD');
+                        self::$socket   = !empty($_ENV['MYSQL_SOCKET']) ? $_ENV['MYSQL_SOCKET'] : getenv('MYSQL_SOCKET');
 
                         if (
                             empty(self::$socket) ||
