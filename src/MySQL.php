@@ -120,10 +120,10 @@
                 /********************************************************************************
                  * QUERY METHOD
                  * @param string $query
-                 * @return mysqli_result|false
+                 * @return array|bool
                  ********************************************************************************/
 
-                    public static function query(string $query): mysqli_result|false {
+                    public static function query(string $query): array|bool {
 
                         // RETURN FALSE IF QUERY IS EMPTY OR NOT A STRING
 
@@ -138,7 +138,7 @@
                                 substr(
                                     $query,
                                     0,
-                                    (strpos($query, ' ') - 1)
+                                    strpos($query, ' ')
                                 )
                             );
 
@@ -208,11 +208,45 @@
                  * SANITIZE METHOD
                  * Used to sanitize individual field values for database insertion.
                  * @param mixed $value The value to be sanitized.
-                 * @param array $dataType The DB datatype of the passed value
+                 * @param array|string $dataType The DB datatype of the passed value
                  * @return mixed
                  *******************************************************************************/
 
-                    public static function sanitize(mixed $value, array $dataType = self::DATA_TYPE_TEXT): mixed {
+                    public static function sanitize(mixed $value, array|string $dataType = self::DATA_TYPE_TEXT): mixed {
+
+                        // IF DATATYPE IS A STRING, GET THE CORRECT ASSOCIATED ARRAY
+
+                            if (is_string($dataType)) {
+
+                                $dataType = match (TRUE) {
+                                    in_array($dataType, self::DATA_TYPE_BINARY) => self::DATA_TYPE_BINARY,
+                                    in_array($dataType, self::DATA_TYPE_BINARY) => self::DATA_TYPE_BINARY,
+                                    in_array($dataType, self::DATA_TYPE_INTEGER) => self::DATA_TYPE_INTEGER,
+                                    in_array($dataType, self::DATA_TYPE_OTHER) => self::DATA_TYPE_OTHER,
+                                    in_array($dataType, self::DATA_TYPE_REAL) => self::DATA_TYPE_REAL,
+                                    in_array($dataType, self::DATA_TYPE_SPATIAL) => self::DATA_TYPE_SPATIAL,
+                                    in_array($dataType, self::DATA_TYPE_TEMPORAL) => self::DATA_TYPE_TEMPORAL,
+                                    default => self::DATA_TYPE_TEXT
+                                };
+
+//                                $dataTypes = [
+//                                    self::DATA_TYPE_BINARY,
+//                                    self::DATA_TYPE_INTEGER,
+//                                    self::DATA_TYPE_OTHER,
+//                                    self::DATA_TYPE_REAL,
+//                                    self::DATA_TYPE_SPATIAL,
+//                                    self::DATA_TYPE_TEMPORAL,
+//                                    self::DATA_TYPE_TEXT
+//                                ];
+//
+//                                foreach ($dataTypes as $type) {
+//                                    if (in_array($dataType, $type)) {
+//                                        $dataType = $type;
+//                                        break;
+//                                    }
+//                                }
+
+                            }
 
                         // MAKE SURE VALUE ISN'T NULL | SANITIZE BASED ON DATA TYPE | RETURN VALUE
 
