@@ -172,7 +172,7 @@
                                 substr(
                                     $query,
                                     0,
-                                    (strpos($query, ' ') - 1)
+                                    strpos($query, ' ')
                                 )
                             );
 
@@ -185,7 +185,7 @@
                         // CREATE AND EXECUTE PREPARED STATEMENT | RETURN FALSE ON ERROR
 
                             $statement = self::get()->prepare($query);
-                            $statement->bind_param($paramTypeString, ...$paramValues);
+                            $statement->bind_param($paramTypeString, ...self::arrayReferenceValues($paramValues));
                             $statement->execute();
 
                             if ($statement->errno > 0) {
@@ -279,15 +279,40 @@
 
                     public static function backup(string $directory): void {
 
-                    $user     = self::$user;
-                    $password = self::$password;
-                    $database = self::$database;
-                    $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
+                        $user = self::$user;
+                        $password = self::$password;
+                        $database = self::$database;
+                        $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
 
-                    exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
+                        exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
 
-            }
+                    }
 
+                /********************************************************************************
+                 * ARRAY REFERENCE VALUES METHOD
+                 *
+                 * Returns an array with the values as a reference
+                 *
+                 * @param array $data
+                 * @return array
+                 ********************************************************************************/
+
+                    final protected static function arrayReferenceValues(array $data): array {
+
+                        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+
+                            $i = 0;
+
+                            foreach ($data as $key => $value) {
+                                $referencedValues[$i] = &$data[$key];
+                                $i++;
+                            }
+
+                        }
+
+                        return !empty($referencedValues) ? $referencedValues : $data;
+
+                    }
 
         }
 
