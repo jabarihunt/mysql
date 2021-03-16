@@ -120,10 +120,10 @@
                 /********************************************************************************
                  * QUERY METHOD
                  * @param string $query
-                 * @return array|bool
+                 * @return array|int
                  ********************************************************************************/
 
-                    public static function query(string $query): array|bool {
+                    public static function query(string $query): array|int {
 
                         // RETURN FALSE IF QUERY IS EMPTY OR NOT A STRING
 
@@ -146,7 +146,11 @@
 
                         // RETURN RESULT BASED OF QUERY TYPE
 
-                            return in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN']) ? $result->fetch_all(MYSQLI_ASSOC) : $result;
+                            return match($queryType) {
+                                'INSERT'                                => self::get()->insert_id,
+                                'SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN' => $result->fetch_all(MYSQLI_ASSOC),
+                                default                                 => self::get()->affected_rows
+                            };
                     }
 
                 /********************************************************************************
@@ -167,7 +171,8 @@
 
                         // TRIM QUERY & GET QUERY TYPE | CREATE PARAM TYPES STRING IF NOT PASSED
 
-                            $query     = trim($query);
+                            $query = trim($query);
+
                             $queryType = strtoupper(
                                 substr(
                                     $query,
@@ -192,15 +197,20 @@
                                 return FALSE;
                             }
 
-                        // EXTRACT RESULT & AFFECTED ROWS | CLOSE STATEMENT
+                        // GET RESULT RESULT | SET RESPONSE
 
-                            $result       = $statement->get_result();
-                            $affectedRows = $statement->affected_rows;
+                            $result = $statement->get_result();
+
+                            $response = match($queryType) {
+                                'INSERT'                                => $statement->insert_id,
+                                'SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN' => $result->fetch_all(MYSQLI_ASSOC),
+                                default                                 => $statement->affected_rows
+                            };
+
+                        // CLOSE STATEMENT | RETURN RESPONSE
+
                             $statement->close();
-
-                        // RETURN RESULT BASED OF QUERY TYPE
-
-                            return in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN']) ? $result->fetch_all(MYSQLI_ASSOC) : $affectedRows;
+                            return $response;
 
                     }
 
@@ -228,23 +238,6 @@
                                     in_array($dataType, self::DATA_TYPE_TEMPORAL) => self::DATA_TYPE_TEMPORAL,
                                     default => self::DATA_TYPE_TEXT
                                 };
-
-//                                $dataTypes = [
-//                                    self::DATA_TYPE_BINARY,
-//                                    self::DATA_TYPE_INTEGER,
-//                                    self::DATA_TYPE_OTHER,
-//                                    self::DATA_TYPE_REAL,
-//                                    self::DATA_TYPE_SPATIAL,
-//                                    self::DATA_TYPE_TEMPORAL,
-//                                    self::DATA_TYPE_TEXT
-//                                ];
-//
-//                                foreach ($dataTypes as $type) {
-//                                    if (in_array($dataType, $type)) {
-//                                        $dataType = $type;
-//                                        break;
-//                                    }
-//                                }
 
                             }
 
