@@ -120,10 +120,10 @@
                 /********************************************************************************
                  * QUERY METHOD
                  * @param string $query
-                 * @return mysqli_result|false
+                 * @return array|int
                  ********************************************************************************/
 
-                    public static function query(string $query): mysqli_result|false {
+                    public static function query(string $query): array|int {
 
                         // RETURN FALSE IF QUERY IS EMPTY OR NOT A STRING
 
@@ -138,7 +138,7 @@
                                 substr(
                                     $query,
                                     0,
-                                    (strpos($query, ' ') - 1)
+                                    strpos($query, ' ')
                                 )
                             );
 
@@ -146,7 +146,11 @@
 
                         // RETURN RESULT BASED OF QUERY TYPE
 
-                            return in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN']) ? $result->fetch_all(MYSQLI_ASSOC) : $result;
+                            return match($queryType) {
+                                'INSERT'                                => self::get()->insert_id,
+                                'SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN' => $result->fetch_all(MYSQLI_ASSOC),
+                                default                                 => self::get()->affected_rows
+                            };
                     }
 
                 /********************************************************************************
@@ -167,12 +171,13 @@
 
                         // TRIM QUERY & GET QUERY TYPE | CREATE PARAM TYPES STRING IF NOT PASSED
 
-                            $query     = trim($query);
+                            $query = trim($query);
+
                             $queryType = strtoupper(
                                 substr(
                                     $query,
                                     0,
-                                    (strpos($query, ' ') - 1)
+                                    strpos($query, ' ')
                                 )
                             );
 
@@ -185,22 +190,27 @@
                         // CREATE AND EXECUTE PREPARED STATEMENT | RETURN FALSE ON ERROR
 
                             $statement = self::get()->prepare($query);
-                            $statement->bind_param($paramTypeString, ...$paramValues);
+                            $statement->bind_param($paramTypeString, ...self::arrayReferenceValues($paramValues));
                             $statement->execute();
 
                             if ($statement->errno > 0) {
                                 return FALSE;
                             }
 
-                        // EXTRACT RESULT & AFFECTED ROWS | CLOSE STATEMENT
+                        // GET RESULT RESULT | SET RESPONSE
 
-                            $result       = $statement->get_result();
-                            $affectedRows = $statement->affected_rows;
+                            $result = $statement->get_result();
+
+                            $response = match($queryType) {
+                                'INSERT'                                => $statement->insert_id,
+                                'SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN' => $result->fetch_all(MYSQLI_ASSOC),
+                                default                                 => $statement->affected_rows
+                            };
+
+                        // CLOSE STATEMENT | RETURN RESPONSE
+
                             $statement->close();
-
-                        // RETURN RESULT BASED OF QUERY TYPE
-
-                            return in_array($queryType, ['SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN']) ? $result->fetch_all(MYSQLI_ASSOC) : $affectedRows;
+                            return $response;
 
                     }
 
@@ -208,11 +218,28 @@
                  * SANITIZE METHOD
                  * Used to sanitize individual field values for database insertion.
                  * @param mixed $value The value to be sanitized.
-                 * @param array $dataType The DB datatype of the passed value
+                 * @param array|string $dataType The DB datatype of the passed value
                  * @return mixed
                  *******************************************************************************/
 
-                    public static function sanitize(mixed $value, array $dataType = self::DATA_TYPE_TEXT): mixed {
+                    public static function sanitize(mixed $value, array|string $dataType = self::DATA_TYPE_TEXT): mixed {
+
+                        // IF DATATYPE IS A STRING, GET THE CORRECT ASSOCIATED ARRAY
+
+                            if (is_string($dataType)) {
+
+                                $dataType = match (TRUE) {
+                                    in_array($dataType, self::DATA_TYPE_BINARY) => self::DATA_TYPE_BINARY,
+                                    in_array($dataType, self::DATA_TYPE_BINARY) => self::DATA_TYPE_BINARY,
+                                    in_array($dataType, self::DATA_TYPE_INTEGER) => self::DATA_TYPE_INTEGER,
+                                    in_array($dataType, self::DATA_TYPE_OTHER) => self::DATA_TYPE_OTHER,
+                                    in_array($dataType, self::DATA_TYPE_REAL) => self::DATA_TYPE_REAL,
+                                    in_array($dataType, self::DATA_TYPE_SPATIAL) => self::DATA_TYPE_SPATIAL,
+                                    in_array($dataType, self::DATA_TYPE_TEMPORAL) => self::DATA_TYPE_TEMPORAL,
+                                    default => self::DATA_TYPE_TEXT
+                                };
+
+                            }
 
                         // MAKE SURE VALUE ISN'T NULL | SANITIZE BASED ON DATA TYPE | RETURN VALUE
 
@@ -254,15 +281,40 @@
 
                     public static function backup(string $directory): void {
 
-                    $user     = self::$user;
-                    $password = self::$password;
-                    $database = self::$database;
-                    $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
+                        $user = self::$user;
+                        $password = self::$password;
+                        $database = self::$database;
+                        $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
 
-                    exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
+                        exec("mysqldump --user='{$user}' --password='{$password}' --single-transaction --routines --triggers {$database} > {$location}");
 
-            }
+                    }
 
+                /********************************************************************************
+                 * ARRAY REFERENCE VALUES METHOD
+                 *
+                 * Returns an array with the values as a reference
+                 *
+                 * @param array $data
+                 * @return array
+                 ********************************************************************************/
+
+                    final protected static function arrayReferenceValues(array $data): array {
+
+                        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+
+                            $i = 0;
+
+                            foreach ($data as $key => $value) {
+                                $referencedValues[$i] = &$data[$key];
+                                $i++;
+                            }
+
+                        }
+
+                        return !empty($referencedValues) ? $referencedValues : $data;
+
+                    }
 
         }
 
