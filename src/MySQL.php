@@ -238,6 +238,15 @@
                     }
 
                 /********************************************************************************
+                 * GET INSERT ID METHOD
+                 * @return mysqli
+                 ********************************************************************************/
+
+                    public static function getInsertId(): int {
+                        return self::get()->insert_id;
+                    }
+
+                /********************************************************************************
                  * BACKUP METHOD
                  * @param string $directory
                  * @return void
