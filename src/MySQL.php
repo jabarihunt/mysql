@@ -28,7 +28,7 @@
 
                 private static string|null $host;
                 private static string $database;
-                private static string $user;
+                private static string $username;
                 private static string $password;
                 private static string|null $socket;
 
@@ -81,7 +81,7 @@
 
                         self::$host     = !empty($_ENV['MYSQL_HOST']) ? $_ENV['MYSQL_HOST'] : getenv('MYSQL_HOST');
                         self::$database = !empty($_ENV['MYSQL_DATABASE']) ? $_ENV['MYSQL_DATABASE'] : getenv('MYSQL_DATABASE');
-                        self::$user     = !empty($_ENV['MYSQL_USER']) ? $_ENV['MYSQL_USER'] : getenv('MYSQL_USER');
+                        self::$username = !empty($_ENV['MYSQL_USERNAME']) ? $_ENV['MYSQL_USERNAME'] : getenv('MYSQL_USERNAME');
                         self::$password = !empty($_ENV['MYSQL_PASSWORD']) ? $_ENV['MYSQL_PASSWORD'] : getenv('MYSQL_PASSWORD');
                         self::$socket   = !empty($_ENV['MYSQL_SOCKET']) ? $_ENV['MYSQL_SOCKET'] : getenv('MYSQL_SOCKET');
 
@@ -94,7 +94,7 @@
 
                     // CONNECT TO DATABASE | CHECK CONNECTION
 
-                        self::$db = (self::$socket === NULL) ? @new mysqli(self::$host, self::$user, self::$password, self::$database) : @new mysqli(NULL, self::$user, self::$password, self::$database, NULL, self::$socket);
+                        self::$db = (self::$socket === NULL) ? @new mysqli(self::$host, self::$username, self::$password, self::$database) : @new mysqli(NULL, self::$username, self::$password, self::$database, NULL, self::$socket);
 
                         if (self::$db->connect_errno > 0) {
                             $connectionError = 'MySQL Connection Error #' . self::$db->connect_errno . ': ' . self::$db->connect_error;
@@ -281,7 +281,7 @@
 
                     public static function backup(string $directory): void {
 
-                        $user = self::$user;
+                        $user = self::$username;
                         $password = self::$password;
                         $database = self::$database;
                         $location = rtrim($directory, '/') . "/{$database}-" . date('Y-m-d') . '_' . time() . '.sql';
