@@ -24,6 +24,7 @@
              * @var string $user Database Username
              * @var string $password Database Password
              * @var string $socket Database Socket
+             * @var int $port Database Port
              ********************************************************************************/
 
                 private static string|null $host;
@@ -31,6 +32,7 @@
                 private static string $username;
                 private static string $password;
                 private static string|null $socket;
+                private static int $port;
 
             /********************************************************************************
              * CLASS VARIABLES
@@ -84,6 +86,8 @@
                         self::$username = !empty($_ENV['MYSQL_USERNAME']) ? $_ENV['MYSQL_USERNAME'] : getenv('MYSQL_USERNAME');
                         self::$password = !empty($_ENV['MYSQL_PASSWORD']) ? $_ENV['MYSQL_PASSWORD'] : getenv('MYSQL_PASSWORD');
                         self::$socket   = !empty($_ENV['MYSQL_SOCKET']) ? $_ENV['MYSQL_SOCKET'] : getenv('MYSQL_SOCKET');
+                        self::$password = !empty($_ENV['MYSQL_PASSWORD']) ? $_ENV['MYSQL_PASSWORD'] : getenv('MYSQL_PASSWORD');
+                        self::$port     = !empty($_ENV['MYSQL_PORT']) ? $_ENV['MYSQL_PORT'] : getenv('MYSQL_PORT');
 
                         if (
                             empty(self::$socket) ||
@@ -94,7 +98,7 @@
 
                     // CONNECT TO DATABASE | CHECK CONNECTION
 
-                        self::$db = (self::$socket === NULL) ? @new mysqli(self::$host, self::$username, self::$password, self::$database) : @new mysqli(NULL, self::$username, self::$password, self::$database, NULL, self::$socket);
+                        self::$db = (self::$socket === NULL) ? @new mysqli(self::$host, self::$username, self::$password, self::$database, self::$port) : @new mysqli(NULL, self::$username, self::$password, self::$database, self::$port, self::$socket);
 
                         if (self::$db->connect_errno > 0) {
                             $connectionError = 'MySQL Connection Error #' . self::$db->connect_errno . ': ' . self::$db->connect_error;
