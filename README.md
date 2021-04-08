@@ -14,6 +14,7 @@ MYSQL_DATABASE="manevia_db"
 MYSQL_USER="root"
 MYSQL_PASSWORD="secretPassword"
 MYSQL_SOCKET="NULL"
+MYSQL_PORT=3306
 ```
 
 Depending on how you load environment variables, you may be able to reference already defined variables when setting the required environment variables above.  This helps prevent having to maintain values in multiple locations.  For example:
@@ -24,12 +25,14 @@ DATABASE_DATABASE="manevia_db"
 DATABASE_USER="roo"
 DATABASE_PASSWORD="secretPassword"
 DATABASE_SOCKET="NULL"
+DATABASE_PORT=3306
 
 MYSQL_HOST="${DATABASE_HOST}"
 MYSQL_DATABASE="${DATABASE_NAME}"
 MYSQL_USER="${DATABASE_USER}"
 MYSQL_PASSWORD="${DATABASE_PASSWORD}"
 MYSQL_SOCKET="${DATABASE_SOCKET}"
+MYSQL_PORT=${DATABASE_PORT}
 ```
 ### Installing
 
@@ -56,14 +59,14 @@ require('/path/to/cloned/directory/src/MySQL.php');
 
 ## Usage
 
-This class does not require instantiation since it uses the singleton design pattern for connections.  You may simply begin using the available public methods.  If none of the methods are called, a database connection is never created.  You may alias the class as another name using `use/as`, as demonstrated below: 
+This class does not require instantiation since it uses the singleton design pattern for connections.  You may simply begin using the available public methods.  If none of the methods are called, a database connection is never created.  You may alias the class as another name using `use/as`, as demonstrated below:
 
 ```php
 use jabarihunt/MySQL as DB;
 
 /*
  * QUERY THE DATABASE WITH A PREPARED STATEMENT (RECOMMENDED)
- * 
+ *
  * prepare($query, $paramValues, $paramTypeString = NULL):
  * CONVENIENCE METHOD THAT RETURNS ARRAY OF DATA FOR QUERIES THAT RETURN A RESULT SET, THE NUMBER OF AFFECTED ROWS FOR ALL
  * OTHER QUERIES, OR FALSE ON ERROR.  $paramTypeString IS OPTIONAL, ALL VALUES WILL BE SENT AS STRINGS IF NOT PROVIDED.
@@ -73,7 +76,7 @@ use jabarihunt/MySQL as DB;
 
 /*
  * QUERY THE DATABASE AS A STANDARD QUERY
- * 
+ *
  * query($query):
  * CONVENIENCE METHOD THAT RETURNS AN ARRAY OF DATA FOR QUERIES THAT RETURN A RESULT SET, TRUE ON SUCCESS, OR FALSE ON ERROR.
  */
