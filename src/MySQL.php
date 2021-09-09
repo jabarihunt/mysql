@@ -234,7 +234,6 @@
 
                                 $dataType = match (TRUE) {
                                     in_array($dataType, self::DATA_TYPE_BINARY) => self::DATA_TYPE_BINARY,
-                                    in_array($dataType, self::DATA_TYPE_BINARY) => self::DATA_TYPE_BINARY,
                                     in_array($dataType, self::DATA_TYPE_INTEGER) => self::DATA_TYPE_INTEGER,
                                     in_array($dataType, self::DATA_TYPE_OTHER) => self::DATA_TYPE_OTHER,
                                     in_array($dataType, self::DATA_TYPE_REAL) => self::DATA_TYPE_REAL,
