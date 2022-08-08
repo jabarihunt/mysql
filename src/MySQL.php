@@ -45,13 +45,16 @@
 
             /********************************************************************************
              * CLASS CONSTANTS
-             * @const integer DATA_TYPE_INTEGER  - tinyint, smallint, mediumint, int, bigint, bit
-             * @const integer DATA_TYPE_REAL     - float, double, decimal
-             * @const integer DATA_TYPE_TEXT     - char, varchar, tinytext, text, mediumtext, longtext
-             * @const integer DATA_TYPE_BINARY   - binary, varbinary, blob, tinyblob, mediumblob, longblob
-             * @const integer DATA_TYPE_TEMPORAL - date, time, year, datetime, timestamp
-             * @const integer DATA_TYPE_SPATIAL  - point, linestring, polygon, geometry, multipoint, multilinestring, multipolygon, geometrycollection
-             * @const integer DATA_TYPE_OTHER    - enum, set
+             * @const array DATA_TYPE_INTEGER  - tinyint, smallint, mediumint, int, bigint, bit
+             * @const array DATA_TYPE_REAL     - float, double, decimal
+             * @const array DATA_TYPE_TEXT     - char, varchar, tinytext, text, mediumtext, longtext
+             * @const array DATA_TYPE_BINARY   - binary, varbinary, blob, tinyblob, mediumblob, longblob
+             * @const array DATA_TYPE_TEMPORAL - date, time, year, datetime, timestamp
+             * @const array DATA_TYPE_SPATIAL  - point, linestring, polygon, geometry, multipoint, multilinestring, multipolygon, geometrycollection
+             * @const array DATA_TYPE_OTHER    - enum, set
+             * @const int TRANSACTION_START
+             * @const int TRANSACTION_COMMIT
+             * @const int TRANSACTION_ROLLBACK
              ********************************************************************************/
 
                 const DATA_TYPE_INTEGER  = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'bit'];
@@ -61,6 +64,10 @@
                 const DATA_TYPE_TEMPORAL = ['date', 'time', 'year', 'datetime', 'timestamp'];
                 const DATA_TYPE_SPATIAL  = ['point', 'linestring', 'polygon', 'geometry', 'multipoint', 'multilinestring', 'multipolygon', 'geometrycollection'];
                 const DATA_TYPE_OTHER    = ['enum', 'set'];
+
+                const TRANSACTION_START    = 0;
+                const TRANSACTION_COMMIT   = 1;
+                const TRANSACTION_ROLLBACK = 2;
 
             /********************************************************************************
              * SINGLETON INSTANCE METHOD
@@ -155,6 +162,31 @@
                                 'SELECT', 'SHOW', 'DESCRIBE', 'EXPLAIN' => $result->fetch_all(MYSQLI_ASSOC),
                                 default                                 => self::get()->affected_rows
                             };
+                    }
+
+            /********************************************************************************
+             * TRANSACTION METHOD
+             * @param int $transactionCommandId
+             * @return bool
+             ******************************************************************************
+             */
+
+                    public static function transaction(int $transactionCommandId): bool {
+
+                        // MAKE SURE A VALID VALUE WAS PASSED | RUN QUERY | RETURN BOOLEAN BASED ON RESULT
+
+                            if ($transactionCommandId < 0 || $transactionCommandId > 2) {
+                                return FALSE;
+                            }
+
+                            switch ($transactionCommandId) {
+                                case 0: self::get()->begin_transaction(); break;
+                                case 1: self::get()->commit(); break;
+                                case 2: self::get()->rollback(); break;
+                            }
+
+                            return (self::get()->errno === 0);
+
                     }
 
                 /********************************************************************************
@@ -274,6 +306,24 @@
 
                     public static function getInsertId(): int {
                         return self::get()->insert_id;
+                    }
+
+                /********************************************************************************
+                 * GET ERROR NUMBER
+                 * @return int
+                 ********************************************************************************/
+
+                    public static function getErrorNumber(): int {
+                        return self::get()->errno;
+                    }
+
+                /********************************************************************************
+                 * GET ERROR NUMBER
+                 * @return string
+                 ********************************************************************************/
+
+                    public static function getErrorMessage(): string {
+                        return self::get()->error;
                     }
 
                 /********************************************************************************
