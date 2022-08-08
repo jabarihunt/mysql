@@ -45,13 +45,13 @@
 
             /********************************************************************************
              * CLASS CONSTANTS
-             * @var integer DATA_TYPE_INTEGER  - tinyint, smallint, mediumint, int, bigint, bit
-             * @var integer DATA_TYPE_REAL     - float, double, decimal
-             * @var integer DATA_TYPE_TEXT     - char, varchar, tinytext, text, mediumtext, longtext
-             * @var integer DATA_TYPE_BINARY   - binary, varbinary, blob, tinyblob, mediumblob, longblob
-             * @var integer DATA_TYPE_TEMPORAL - date, time, year, datetime, timestamp
-             * @var integer DATA_TYPE_SPATIAL  - point, linestring, polygon, geometry, multipoint, multilinestring, multipolygon, geometrycollection
-             * @var integer DATA_TYPE_OTHER    - enum, set
+             * @const integer DATA_TYPE_INTEGER  - tinyint, smallint, mediumint, int, bigint, bit
+             * @const integer DATA_TYPE_REAL     - float, double, decimal
+             * @const integer DATA_TYPE_TEXT     - char, varchar, tinytext, text, mediumtext, longtext
+             * @const integer DATA_TYPE_BINARY   - binary, varbinary, blob, tinyblob, mediumblob, longblob
+             * @const integer DATA_TYPE_TEMPORAL - date, time, year, datetime, timestamp
+             * @const integer DATA_TYPE_SPATIAL  - point, linestring, polygon, geometry, multipoint, multilinestring, multipolygon, geometrycollection
+             * @const integer DATA_TYPE_OTHER    - enum, set
              ********************************************************************************/
 
                 const DATA_TYPE_INTEGER  = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'bit'];
@@ -250,7 +250,7 @@
                                 $value = match ($dataType) {
                                     self::DATA_TYPE_INTEGER => filter_var($value, FILTER_SANITIZE_NUMBER_INT),
                                     self::DATA_TYPE_REAL    => filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
-                                    default                 => filter_var($value, FILTER_SANITIZE_STRING)
+                                    default                 => filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS)
                                 };
                             }
 
