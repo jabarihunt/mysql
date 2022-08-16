@@ -33,6 +33,7 @@
                 private static string $password;
                 private static string|null $socket;
                 private static int $port;
+                private static string|null $timezone;
 
             /********************************************************************************
              * CLASS VARIABLES
@@ -95,6 +96,7 @@
                         self::$socket   = !empty($_ENV['MYSQL_SOCKET']) ? $_ENV['MYSQL_SOCKET'] : getenv('MYSQL_SOCKET');
                         self::$password = !empty($_ENV['MYSQL_PASSWORD']) ? $_ENV['MYSQL_PASSWORD'] : getenv('MYSQL_PASSWORD');
                         self::$port     = !empty($_ENV['MYSQL_PORT']) ? $_ENV['MYSQL_PORT'] : getenv('MYSQL_PORT');
+                        self::$timezone = !empty($_ENV['MYSQL_TIME_ZONE']) ? $_ENV['MYSQL_TIME_ZONE'] : getenv('MYSQL_TIME_ZONE');
 
                         if (
                             empty(self::$socket) ||
@@ -110,6 +112,12 @@
                         if (self::$db->connect_errno > 0) {
                             $connectionError = 'MySQL Connection Error #' . self::$db->connect_errno . ': ' . self::$db->connect_error;
                             throw new ErrorException($connectionError, 0, E_ERROR, __FILE__, __LINE__);
+                        }
+
+                    // SET TIMEZONE FOR SESSION
+
+                        if (!empty(self::$timezone)) {
+                            self::$db->query('SET time_zone = \'' . self::$timezone . '\'');
                         }
 
                 }
@@ -138,8 +146,8 @@
 
                         // RETURN FALSE IF QUERY IS EMPTY OR NOT A STRING
 
-                            if (empty($query) || !is_string($query)) {
-                                return FALSE;
+                            if (empty($query)) {
+                                return [];
                             }
 
                         // TRIM QUERY & GET QUERY TYPE | RUN QUERY
