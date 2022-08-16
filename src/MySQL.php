@@ -210,10 +210,12 @@
                             $query = trim($query);
 
                             $queryType = strtoupper(
-                                substr(
-                                    $query,
-                                    0,
-                                    strpos($query, ' ')
+                                trim(
+                                    substr(
+                                        $query,
+                                        0,
+                                        strpos($query, ' ')
+                                    )
                                 )
                             );
 
