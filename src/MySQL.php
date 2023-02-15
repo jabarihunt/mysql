@@ -292,8 +292,8 @@
 
                             if (!empty($value)) {
                                 $value = match ($dataType) {
-                                    self::DATA_TYPE_INTEGER => filter_var($value, FILTER_SANITIZE_NUMBER_INT),
-                                    self::DATA_TYPE_REAL    => filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
+                                    self::DATA_TYPE_INTEGER => intval(filter_var($value, FILTER_SANITIZE_NUMBER_INT)),
+                                    self::DATA_TYPE_REAL    => floatval(filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)),
                                     default                 => filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS)
                                 };
                             }
